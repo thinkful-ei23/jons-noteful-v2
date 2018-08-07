@@ -1,9 +1,9 @@
 'use strict';
 
-const knex = require('../knex');
+// const knex = require('../knex');
 
-let searchTerm = 'gaga';
-// knex
+// let searchTerm = 'gaga';
+// // knex
 //   .select('id', 'title', 'content')
 //   .from('notes')
 //   .modify(queryBuilder => {
@@ -19,7 +19,7 @@ let searchTerm = 'gaga';
 //     console.error(err);
 //   });
 
-let id = '1001';
+// let id = '1001';
 // knex
 //   .first('id', 'title','content')
 //   .from('notes')
