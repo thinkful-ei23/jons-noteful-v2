@@ -16,7 +16,8 @@ const knex = require('../knex');
 router.get('/', (req, res, next) => {
   const { searchTerm } = req.query;
   
-  knex.select('id', 'title', 'content')
+  knex
+    .select('id', 'title', 'content')
     .from('notes')
     .modify(function (queryBuilder) {
       if (searchTerm) {
@@ -50,13 +51,13 @@ router.get('/:id', (req, res, next) => {
     .where({id: id})
     .then(result => {
       if (result) {
-        console.log(result);
+        res.json(result);
       } else {
         next();
       }
     })
     .catch(err => {
-      console.error(err);
+      next(err);
     });
 
   // notes.find(id)
@@ -138,7 +139,7 @@ router.post('/', (req, res, next) => {
     .returning(['id','title','content'])
     .then(result => {
       if (result) {
-        res.location(`http://${req.headers.host}/notes/${result.id}`).status(201).json(results);
+        res.location(`http://${req.headers.host}/notes/${result.id}`).status(201).json(result);
       } 
     })
     .catch(err => {
@@ -165,7 +166,7 @@ router.delete('/:id', (req, res, next) => {
     .del()
     .then(() => {
       res.sendStatus(204);
-    })
+    }) 
     .catch(err => {
       next(err);
     });
