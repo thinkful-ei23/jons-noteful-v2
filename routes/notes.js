@@ -38,15 +38,8 @@ router.get('/', (req, res, next) => {
     .catch(err => {
       next(err);
     });
-
-  // notes.filter(searchTerm)
-  //   .then(list => {
-  //     res.json(list);
-  //   })
-  //   .catch(err => {
-  //     next(err);
-  //   });
 });
+
 
 // Get a single item
 router.get('/:id', (req, res, next) => {

@@ -46,11 +46,11 @@ router.put('/:id', (req, res, next) => {
 
   knex
     .update(updateObj)
-    .update('folders')
+    .from('folders')
     .where({id: id})
     .then(result => {
       if (result) {
-        console.log(result);
+        res.json(result);
       } else {
         next();
       }
@@ -89,7 +89,7 @@ router.delete('/:id', (req, res, next) => {
     .where({id: id})
     .del()
     .then(() => {
-      res.sendStatus(204);
+      res.sendStatus(204).end();
     })
     .catch(err => {
       next(err);
