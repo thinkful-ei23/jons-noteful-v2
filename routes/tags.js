@@ -1,14 +1,14 @@
 'use strict';
-
 const express = require('express');
-const knex = require('../knex');
 
 const router = express.Router();
+
+const knex = require('../knex');
 
 
 router.get('/', (req, res, next) => {
   knex.select('id', 'name')
-    .from('folders')
+    .from('tags')
     .then(results => {
       res.json(results);
     })
@@ -17,10 +17,10 @@ router.get('/', (req, res, next) => {
 
 router.get('/:id', (req, res, next) => {
   const id = req.params.id;
-  knex  
-    .first('id','name')
-    .from('folders')
-    .where({id: id})
+  knex
+    .first('id', 'name')
+    .from('tags')
+    .where({ id: id })
     .then(result => {
       if (result) {
         res.json(result);
@@ -32,6 +32,34 @@ router.get('/:id', (req, res, next) => {
       next(err);
     });
 });
+
+
+
+/* ========== POST/CREATE ITEM ========== */
+router.post('/', (req, res, next) => {
+  const { name } = req.body;
+
+  /***** Never trust users. Validate input *****/
+  if (!name) {
+    const err = new Error('Missing `name` in request body');
+    err.status = 400;
+    return next(err);
+  }
+
+  const newItem = { name };
+
+  knex.insert(newItem)
+    .into('tags')
+    .returning(['id', 'name'])
+    .then((results) => {
+      // Uses Array index solution to get first item in results array
+      const result = results[0];
+      res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
+    })
+    .catch(err => next(err));
+});
+
+
 
 router.put('/:id', (req, res, next) => {
   const id = req.params.id;
@@ -46,8 +74,8 @@ router.put('/:id', (req, res, next) => {
 
   knex
     .update(updateObj)
-    .from('folders')
-    .where({id: id})
+    .from('tags')
+    .where({ id: id })
     .then(result => {
       if (result) {
         res.json(result);
@@ -61,32 +89,11 @@ router.put('/:id', (req, res, next) => {
 });
 
 
-router.post('/', (req, res, next) => {
-  const newFolder = req.body;
-
-  if (!newFolder.name) {
-    const err = new Error('Missing `title` in request body');
-    err.status = 400;
-    return next(err);
-  }
-
-  knex ('folders')
-    .insert(newFolder, ['id', 'name'])
-    .then(result => {
-      if (result) {
-        res.location(`http://${req.headers.host}/folders/${result.id}`).status(201).json(result);
-      }
-    })
-    .catch(err => {
-      next(err);
-    });
-});
-
 router.delete('/:id', (req, res, next) => {
   const id = req.params.id;
 
-  knex('folders')
-    .where({id: id})
+  knex('tags')
+    .where({ id: id })
     .del()
     .then(() => {
       res.sendStatus(204).end();

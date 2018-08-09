@@ -1,5 +1,7 @@
 
 -- psql -U dev -f ~/Dropbox/Thinkful/week4/day2-knex/node-noteful-v2/db/noteful.sql noteful-app
+DROP TABLE IF EXISTS notes_tags;
+DROP TABLE IF EXISTS tags;
 DROP TABLE IF EXISTS notes;
 DROP TABLE IF EXISTS folders;
 
@@ -30,6 +32,18 @@ CREATE TABLE notes
 );
 
 ALTER SEQUENCE notes_id_seq RESTART WITH 1000;
+
+CREATE TABLE tags (
+  id serial PRIMARY KEY,
+  name text NOT NULL
+);
+
+CREATE TABLE notes_tags (
+  note_id INTEGER NOT NULL REFERENCES notes ON DELETE CASCADE,
+  tag_id INTEGER NOT NULL REFERENCES tags ON DELETE CASCADE
+);
+
+
 
 INSERT INTO notes
   (title, content, folder_id)
@@ -84,3 +98,23 @@ VALUES
     'Posuere sollicitudin aliquam ultrices sagittis orci a. Feugiat sed lectus vestibulum mattis ullamcorper velit. Odio pellentesqsl.',
     103
   );
+
+
+INSERT INTO tags
+  (name)
+  VALUES
+  ('Professional'),
+  ('Programming'),
+  ('Test');
+
+
+INSERT INTO notes_tags 
+(note_id, tag_id)
+VALUES
+(1001, 1),
+(1002, 1),
+(1003, 2),
+(1005, 3),
+(1006, 1),
+(1007, 3),
+(1008, 2);
