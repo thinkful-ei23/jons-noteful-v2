@@ -270,9 +270,13 @@ const noteful = (function () {
     });
   }
 
+  
   /**
    * TAGS EVENT LISTENERS AND HANDLERS
    */
+
+
+  // Adds an event listener that responds to clicking a tag in the list
   function handleTagClick() {
     $('.js-tags-list').on('click', '.js-tag-link', event => {
       event.preventDefault();
@@ -282,35 +286,40 @@ const noteful = (function () {
 
       store.currentNote = {};
 
-      console.info('Get notes by tagId, coming soon...');
-      // api.search('/api/notes', store.currentQuery)
-      //   .then(response => {
-      //     store.notes = response;
-      //     render();
-      //   });
+      // console.info('Get notes by tagId, coming soon...');
+      api.search('/api/notes', store.currentQuery)
+        .then(response => {
+          store.notes = response;
+          render();
+        });
     });
   }
 
+
+  // Listens for the new tag submit.It captures the user input and pass it to the correct api.create method.
+  // When the request returns it chains an api.search request which will update the notes list.
   function handleNewTagSubmit() {
     $('.js-new-tag-form').on('submit', event => {
       event.preventDefault();
 
       const newTagName = $('.js-new-tag-entry').val();
 
-      console.info('Create a tag, coming soon...');
-      // api.create('/api/tags', { name: newTagName })
-      //   .then(() => {
-      //     return api.search('/api/tags');
-      //   }).then(response => {
-      //     store.tags = response;
-      //     render();
-      //   })
-      //   .catch(err => {
-      //     console.error(err);
-      //   });
+      // console.info('Create a tag, coming soon...');
+      api.create('/api/tags', { name: newTagName })
+        .then(() => {
+          return api.search('/api/tags');
+        }).then(response => {
+          store.tags = response;
+          render();
+        })
+        .catch(err => {
+          console.error(err);
+        });
     });
   }
 
+
+  // Listens a click to the delete ("X") button.If successful, it makes a second call to get a fresh list of folders and renders the app.
   function handleTagDeleteClick() {
     $('.js-tags-list').on('click', '.js-tag-delete', event => {
       event.preventDefault();
@@ -322,19 +331,19 @@ const noteful = (function () {
 
       store.currentNote = {};
 
-      console.info('Delete a tag, coming soon...');
-      // api.remove(`/api/tags/${tagId}`)
-      //   .then(() => {
-      //     return api.search('/api/tags');
-      //   })
-      //   .then(response => {
-      //     store.tags = response;
-      //     return api.search('/api/notes', store.currentQuery);
-      //   })
-      //   .then(response => {
-      //     store.notes = response;
-      //     render();
-      //   });
+      // console.info('Delete a tag, coming soon...');
+      api.remove(`/api/tags/${tagId}`)
+        .then(() => {
+          return api.search('/api/tags');
+        })
+        .then(response => {
+          store.tags = response;
+          return api.search('/api/notes', store.currentQuery);
+        })
+        .then(response => {
+          store.notes = response;
+          render();
+        });
     });
   }
 

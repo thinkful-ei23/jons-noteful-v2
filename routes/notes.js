@@ -5,11 +5,6 @@ const express = require('express');
 // Create an router instance (aka "mini-app")
 const router = express.Router();
 
-// TEMP: Simple In-Memory Database
-// const data = require('../db/notes');
-// const simDB = require('../db/simDB');
-// const notes = simDB.initialize(data);
-
 const knex = require('../knex');
 
 const hydrateNotes = require('../utils/hydrateNotes');
@@ -89,19 +84,8 @@ router.get('/:id', (req, res, next) => {
     .catch(err => {
       next(err);
     });
-
-  // notes.find(id)
-  //   .then(item => {
-  //     if (item) {
-  //       res.json(item);
-  //     } else {
-  //       next();
-  //     }
-  //   })
-  //   .catch(err => {
-  //     next(err);
-  //   });
 });
+
 
 // Put update an item
 router.put('/:id', (req, res, next) => {
@@ -112,7 +96,7 @@ router.put('/:id', (req, res, next) => {
   if (!title) {
     const err = new Error('Missing `title` in request body');
     err.status = 400;
-    return next(err); // => Error handler
+    return next(err);
   }
 
   const updateObj = {
@@ -121,24 +105,19 @@ router.put('/:id', (req, res, next) => {
     folder_id: (folderId) ? folderId : null
   };
 
-  // Update note in notes table
   knex.update(updateObj)
     .from('notes')
     .where({ 'notes.id': noteId })
     .then(() => {
-      // Delete current related tags from notes_tags table
       return knex('notes_tags')
         .where('note_id', noteId)
-        .del()
-;
+        .del();
     })
     .then(() => {
-      // Insert related tags into notes_tags table
       const tagsInsert = tags.map(tagId => ({ note_id: noteId, tag_id: tagId.id }));
       return knex.insert(tagsInsert).into('notes_tags');
     })
     .then(() => {
-      // Select the updated note and leftJoin on folders and tags
       return knex.select('notes.id', 'title', 'content', 'folders.id as folder_id', 'folders.name as folderName', 'tags.id as tagId', 'tags.name as tagName')
         .from('notes')
         .leftJoin('folders', 'notes.folder_id', 'folders.id')
@@ -148,15 +127,13 @@ router.put('/:id', (req, res, next) => {
     })
     .then(result => {
       if (result) {
-        // Hydrate the results
         const hydrated = hydrateNotes(result);
-        // Respond with a 200 status and a note object
-        res.json(hydrated); // => Client
+        res.json(hydrated); 
       } else {
-        next(); // => 404 handler
+        next(); 
       }
     })
-    .catch(err => next(err)); // => Error handler
+    .catch(err => next(err));
 });
 
 
@@ -168,7 +145,7 @@ router.post('/', (req, res, next) => {
   const newItem = {
     title: title,
     content: content,
-    folder_id: folderId  // Add `folderId`
+    folder_id: folderId
   };
 
   let noteId;
